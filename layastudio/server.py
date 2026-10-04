@@ -1103,7 +1103,9 @@ def find_port(preferred, host="127.0.0.1", tries=20):
 
     for port in range(preferred, preferred + tries):
         with socket.socket() as probe:
-            probe.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            # On Unix SO_REUSEADDR only helps with TIME_WAIT; on Windows it allows
+            # binding to a port that another server is still listening on, which
+            # defeats the whole purpose of this function.  Leave it off.
             try:
                 probe.bind((host, port))
                 return port

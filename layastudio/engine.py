@@ -30,16 +30,43 @@ import time
 import traceback
 from pathlib import Path
 
-from laya_mlx.common import (
-    QTYPES,
-    build_prefix,
-    build_sequence,
-    render_options,
-    serialize_state,
-    temp_bucket,
-)
-
 PACKAGE = Path(__file__).resolve().parent
+
+# Lazy accessors — loaded on first attribute access so Windows (no mlx) does not crash
+# at import time. laya_mlx.common contains shared prompt/calibration utilities; the
+# laya_mlx.__init__ that imports agent (and thus mlx) is bypassed via direct file load.
+_laya_mlx_common = None
+
+
+def _load_common():
+    """Load laya_mlx.common directly from its source file, bypassing laya_mlx/__init__.py
+    which unconditionally imports mlx (Apple Silicon only, unavailable on Windows)."""
+    global _laya_mlx_common
+    if _laya_mlx_common is not None:
+        return _laya_mlx_common
+
+    import importlib.util
+
+    for base in (PACKAGE.parent, Path(sys.prefix)):
+        site = base / ".venv" / "Lib" / "site-packages"
+        common = site / "laya_mlx" / "common.py"
+        if common.exists():
+            break
+    else:
+        common = Path(sys.prefix) / "Lib" / "site-packages" / "laya_mlx" / "common.py"
+    spec = importlib.util.spec_from_file_location("laya_mlx.common", common)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["laya_mlx.common"] = mod
+    spec.loader.exec_module(mod)
+    _laya_mlx_common = mod
+    return mod
+
+
+def __getattr__(name):
+    if name in ("QTYPES", "build_prefix", "build_sequence", "render_options",
+                "serialize_state", "temp_bucket"):
+        return getattr(_load_common(), name)
+    raise AttributeError(name)
 
 
 def default_workspace():

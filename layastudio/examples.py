@@ -13,6 +13,16 @@ import urllib.request
 
 from .engine import WORKSPACE, create_dataset
 
+# Windows: huggingface_hub uses requests, which looks for the system CA bundle but
+# Python on Windows is often built without one.  certifi ships a current bundle.
+try:
+    import certifi
+
+    os.environ.setdefault("CURL_CA_BUNDLE", certifi.where())
+    os.environ.setdefault("REQUESTS_CA_BUNDLE", certifi.where())
+except ImportError:
+    pass
+
 EXAMPLES = {
     "emotion": {
         "title": "Emotion (6 labels)",
