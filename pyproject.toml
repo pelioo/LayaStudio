@@ -42,7 +42,7 @@ systemone = ["systemonemodels>=0.2.4"]
 layastudio = "layastudio.server:main"
 
 [project.urls]
-Repository = "https://github.com/biplovgautam/LayaStudio"
+Repository = "https://github.com/pelioo/LayaStudio"
 Issues = "https://github.com/biplovgautam/LayaStudio/issues"
 "Laya (upstream model)" = "https://github.com/NandhaKishorM/laya"
 "laya-mlx (runtime)" = "https://pypi.org/project/laya-mlx/"
