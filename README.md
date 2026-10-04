@@ -457,12 +457,46 @@ upstream `laya` on CPU gave **40/40 identical answers** against this MLX runtime
 - Training and evaluation run with `HF_HUB_OFFLINE=1`. The only network actions are model downloads and the public example datasets.
 - Your datasets, runs and checkpoints live in `workspace/`, which git ignores.
 
-## Project layout
+## Development
+
+```bash
+# 启动服务
+uv run layastudio --port-auto    # 自动选择可用端口
+
+# 安装依赖（推荐；pip 用户可参考 requirements.txt）
+uv sync --extra torch --extra export    # 训练 + 导出功能
+
+# 代码检查
+uv run ruff check .
+
+# 运行测试（无下载，约 20s）
+uv run pytest -q
+
+# 模块级入口（无需完整安装）
+uv run python -m layastudio.engine run <job_dir>     # 微调任务
+uv run python -m layastudio.snake dataset            # 生成 Snake 训练数据
+uv run python -m layastudio.snake bench --model run:<id>  # Snake 对比基准测试
+
+# 导出模型（需先 uv sync --extra export）
+uv run python -m layastudio.export run:<id> --target onnx
+uv run python -m layastudio.export run:<id> --target onnx --precision int8
+
+# Core ML 导出（需 Python 3.12）
+uv run --python 3.12 --extra coreml --extra export \
+  python -m layastudio.export run:<id> --target coreml --precision int8
+
+# 发布到 HuggingFace
+uv run python -m layastudio.publish run:<run-id> --repo <you>/<name>
+```
+
+### 项目布局
 
 | Path | What it is |
 |---|---|
 | [`layastudio/server.py`](layastudio/server.py) | The app in one file: JSON API + web UI, standard library only, no build step |
 | [`layastudio/engine.py`](layastudio/engine.py) | MLX engine: data parsing, token analysis, LoRA training, calibration, evaluation, export |
+| [`layastudio/torch_engine.py`](layastudio/torch_engine.py) | PyTorch engine for Windows/Linux GPU/CPU training |
+| [`layastudio/runtime.py`](layastudio/runtime.py) | Runtime detection: MLX on Apple Silicon, PyTorch elsewhere |
 | [`layastudio/examples.py`](layastudio/examples.py) | Public example datasets, fetched from their URLs |
 | [`layastudio/snake.py`](layastudio/snake.py) | The Snake task: board rendering, planner teacher, dataset generation, unassisted benchmark |
 | [`layastudio/export.py`](layastudio/export.py) | ONNX and Core ML exports, each verified against the MLX runtime |
@@ -471,11 +505,6 @@ upstream `laya` on CPU gave **40/40 identical answers** against this MLX runtime
 | `tests/` | Unit and end-to-end tests against a tiny random model |
 
 Jobs run as child processes of `layastudio.engine`, so a crash, a cancel or an out-of-memory error never takes the UI down, and GPU memory returns to the system when a job ends.
-
-```bash
-uv run pytest -q          # 13 tests, no downloads, ~20 s
-uv run ruff check .
-```
 
 ## FAQ
 

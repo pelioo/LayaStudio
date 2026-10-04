@@ -1,3 +1,3 @@
-from .server import main
+from layastudio.server import main
 
 main()

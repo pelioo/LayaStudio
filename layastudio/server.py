@@ -1118,6 +1118,11 @@ def main(argv=None):
     )
     parser.add_argument("--port", type=int, default=8765, help="Default 8765, or the next free")
     parser.add_argument(
+        "--port-auto",
+        action="store_true",
+        help="Start from 8765 and search forward for the first free port",
+    )
+    parser.add_argument(
         "--workspace",
         type=Path,
         default=engine.WORKSPACE,
@@ -1135,7 +1140,8 @@ def main(argv=None):
     os.environ.setdefault("HF_HUB_DISABLE_TELEMETRY", "1")
     engine.WORKSPACE = workspace
 
-    port = find_port(args.port)
+    start_port = 8765 if args.port_auto else args.port
+    port = find_port(start_port)
     url = f"http://127.0.0.1:{port}"
     bootstrap = Bootstrap(
         workspace,
