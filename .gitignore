@@ -13,3 +13,6 @@ dist/
 
 # Tools that generated the docs assets are kept out of the public repo
 docs/*.py
+
+# WorkBuddy agent workspace (local memory, skills, scratch): never committed
+.workbuddy/

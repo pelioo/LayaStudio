@@ -1,0 +1,35 @@
+# ============================================================
+# LayaStudio / System One Studio 依赖文件
+# 与 pyproject.toml 保持同步，仅供 pip 用户使用
+# 推荐使用：uv sync --extra torch --extra export
+# ============================================================
+#
+# 📦 安装步骤（pip）:
+#    pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+#    pip install -r requirements.txt
+#
+# ============================================================
+
+# -------- 基础依赖（所有平台）--------
+numpy>=1.26
+huggingface-hub>=0.19,<0.26   # transformers>=4.48 要求 huggingface-hub<0.26
+tokenizers>=0.21
+pyarrow>=18
+
+# -------- 训练依赖（torch extra）--------
+# 需要先从 CUDA 源安装 PyTorch，再用此文件装其余
+laya>=0.3.5
+transformers>=4.48
+safetensors>=0.4
+torch>=2.4
+
+# -------- 导出功能依赖（export extra）--------
+onnx>=1.16
+onnxruntime>=1.18
+onnxscript>=0.2
+
+# -------- 系统集成（systemone extra）--------
+systemonemodels>=0.2.4
+
+# -------- 其他可选依赖 --------
+Pillow>=11
