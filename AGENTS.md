@@ -121,7 +121,14 @@ WORKSPACE = default_workspace()
 
 ```bash
 # 开发运行（推荐，自动创建 .venv）
-uv run layastudio
+uv run layastudio --port-auto   # 从 8765 开始自动寻找空闲端口
+uv run layastudio               # 固定端口 8765；被占用时需手动指定
+
+# ⚠️ systemone run studio 的坑：
+#   默认行为：从网络拉取上游版本到 AppData/Local/systemone 再运行，
+#   因此本地开发中的代码不会被使用！
+#   正确做法：使用 --source 指定本地路径
+uv run systemone run studio --source . --port-auto
 
 # 运行测试
 uv run pytest
